@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package productproto;
+
+import "product.proto";
+
+service ProductService {
+    rpc healthCheck(EmptyRequest) returns (HealthCheckResponse) {}
+}
+
+message HealthCheckResponse {
+    string status = 1; 
+}
