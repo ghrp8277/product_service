@@ -1,0 +1,6 @@
+export const Points = {
+  ONE_HUNDRED: 100,
+  THREE_HUNDRED: 300,
+  FIVE_HUNDRED: 500,
+  ONE_THOUSAND: 1000,
+};

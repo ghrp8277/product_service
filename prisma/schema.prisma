@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Currency {
+  USD
+  EUR
+  KRW
+  JPY
+}
+
+enum TransactionType {
+  CHARGE    // 포인트 충전
+  PURCHASE  // 포인트 상품 구매
+  GIFT      // 포인트 선물하기
+  REFUND    // 포인트 환불
+  ADJUST    // 포인트 조정 (관리자가 수동으로)
+}
+
+model ExchangeRate {
+  id          Int       @id @default(autoincrement())
+  currency    Currency  @unique
+  rate        Float     
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt      
+  points      Point[] 
+  
+  @@map("exchange_rates")
+}
+
+model PointTransaction {
+  id          Int       @id @default(autoincrement())
+  senderId    Int?      // 포인트 선물하기에서 발신자 (선물이 아닐 경우 null 가능)
+  recipientId Int?      // 포인트 선물하기에서 수신자 (선물이 아닐 경우 null 가능)
+  userId      Int       // 트랜잭션의 주요 사용자 (충전, 구매 등의 경우)
+  amount      Int       // 트랜잭션 금액 (양수: 충전, 음수: 사용/차감)
+  type        TransactionType // 트랜잭션 종류 (예: 충전, 구매, 환불, 선물)
+  createdAt   DateTime  @default(now())  // 트랜잭션 발생 시점
+  description String?   // 트랜잭션에 대한 설명
+  
+  @@map("point_transactions")
+}
+
+model Point {
+  id          Int       @id @default(autoincrement())
+  name        String    
+  description String?   
+  price       Int
+  exchangeRate  ExchangeRate @relation(fields: [exchangeRateId], references: [id])      
+  exchangeRateId Int
+  createdAt   DateTime  @default(now())  
+  updatedAt   DateTime  @updatedAt       
+  
+  @@map("points") 
+}
